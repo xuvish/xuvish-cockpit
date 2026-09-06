@@ -1,0 +1,10 @@
+{
+  "name": "XUVISH Radar Cockpit",
+  "short_name": "XUVISH",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020806",
+  "theme_color": "#00ff91",
+  "orientation": "landscape",
+  "scope": "./"
+}
