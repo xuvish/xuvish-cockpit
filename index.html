@@ -1,119 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#020806">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="XUVISH">
-<link rel="manifest" href="manifest.webmanifest">
-<title>XUVISH Radar Cockpit</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#020806"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="XUVISH"><link rel="manifest" href="manifest.webmanifest"><title>XUVISH Radar Cockpit</title>
 <style>
-:root{--g:#39ff88;--mint:#dfffee;--line:rgba(57,255,136,.55)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
-body{display:flex;align-items:center;justify-content:center;background:#000}
-#blur{position:fixed;inset:-4%;background:#020806 center/cover no-repeat;filter:blur(24px) brightness(.38);transform:scale(1.08)}
-#stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#020806}
-#art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
-.hot{position:absolute;border:0;background:transparent;cursor:pointer;border-radius:16px}
-.hot:active{outline:2px solid var(--g);background:rgba(57,255,136,.10);box-shadow:0 0 24px rgba(57,255,136,.35)}
-.livebox{position:absolute;color:#fff;text-shadow:0 0 10px rgba(57,255,136,.35);pointer-events:none}
-#timebox{left:2.2%;top:2.1%;width:11.3%;height:8.6%;background:rgba(0,12,8,.88);padding:.65% 1%;border-radius:12px}
-#time{font-size:clamp(20px,3vw,48px);font-weight:760;line-height:1}
-#date{margin-top:5px;font-size:clamp(9px,1.05vw,16px);color:#d8ffe7}
-#wxbox{left:14.6%;top:2.1%;width:14.9%;height:8.6%;background:rgba(0,12,8,.86);border-radius:12px;padding:.65% 1%;display:flex;align-items:center;gap:8px}
-#wxicon{font-size:clamp(18px,2.2vw,34px)}
-#wxtemp{font-size:clamp(20px,3vw,46px);font-weight:760}
-#wxmeta{font-size:clamp(8px,.92vw,14px);line-height:1.25}
-#batterybox{left:70.2%;top:2.1%;width:9.5%;height:8.6%;background:rgba(0,12,8,.85);border-radius:12px;padding:.6% .8%}
-#battery{font-size:clamp(16px,2.2vw,34px);font-weight:730}
-#tripbox{left:81.1%;top:2.1%;width:16.1%;height:8.6%;background:rgba(0,12,8,.86);border-radius:12px;padding:.5% .8%;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;text-align:center}
-.tm b{display:block;font-size:clamp(10px,1.3vw,20px)} .tm span{font-size:clamp(6px,.65vw,10px);color:#a8e7c2}
-#speednum{position:absolute;left:77.5%;top:64.8%;width:10.3%;height:11%;display:flex;align-items:center;justify-content:center;color:white;font-size:clamp(34px,6.2vw,95px);font-weight:800;text-shadow:0 0 20px rgba(57,255,136,.45);pointer-events:none}
-#gpsstate{position:absolute;left:88.1%;top:64.5%;color:#8affb8;font-size:clamp(7px,.8vw,12px);pointer-events:none}
-#toast{position:fixed;left:50%;bottom:8%;transform:translateX(-50%) translateY(15px);opacity:0;z-index:50;background:rgba(0,20,12,.95);border:1px solid var(--line);color:#dfffee;padding:10px 16px;border-radius:14px;transition:.18s}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#speedModal{position:fixed;inset:0;background:#010503f2;display:none;align-items:center;justify-content:center;z-index:40;color:white}
-#speedModal.show{display:flex}
-#speedCard{text-align:center}
-#bigSpeed{font-size:min(28vw,270px);font-weight:850;line-height:.85;text-shadow:0 0 34px rgba(57,255,136,.5)}
-#closeSpeed{margin-top:26px;padding:12px 22px;background:#061a11;border:1px solid var(--line);color:#cffff0;border-radius:13px}
-</style>
-</head>
-<body>
-<div id="blur"></div>
-<div id="stage">
-  <img id="art" alt="XUVISH Radar Cockpit">
-  <div id="timebox" class="livebox"><div id="time">--:--</div><div id="date">---</div></div>
-  <div id="wxbox" class="livebox"><div id="wxicon">☁︎</div><div><div id="wxtemp">--°</div><div id="wxmeta">GPS WEATHER<br>LIVE</div></div></div>
-  <div id="batterybox" class="livebox"><div style="font-size:clamp(7px,.75vw,11px);color:#a8e7c2">IPAD BATTERY</div><div id="battery">--%</div></div>
-  <div id="tripbox" class="livebox">
-    <div class="tm"><b id="tripKm">0.0</b><span>DISTANCE KM</span></div>
-    <div class="tm"><b id="tripTime">0:00</b><span>DRIVE TIME</span></div>
-    <div class="tm"><b id="avgSpeed">0</b><span>AVG KM/H</span></div>
-  </div>
-  <div id="speednum">0</div><div id="gpsstate">● GPS</div>
-
-  <button class="hot" style="left:1.4%;top:13.8%;width:28.9%;height:54.5%" onclick="launchShortcut('OPEN ADRENOX','Opening Adrenox Vehicle Status…')"></button>
-  <button class="hot" style="left:30.8%;top:13.8%;width:38.2%;height:54.5%" onclick="launchShortcut('OPEN ADRENOX','Opening Adrenox…')"></button>
-
-  <button class="hot" style="left:70.0%;top:13.7%;width:10.4%;height:19.0%" onclick="launchShortcut('CAR WINDOWS','Windows control')"></button>
-  <button class="hot" style="left:80.5%;top:13.7%;width:10.0%;height:19.0%" onclick="launchShortcut('CAR CLIMATE','Climate control')"></button>
-  <button class="hot" style="left:90.6%;top:13.7%;width:8.1%;height:19.0%" onclick="launchShortcut('CAR STOP ENGINE','Engine control')"></button>
-  <button class="hot" style="left:70.0%;top:33.0%;width:10.4%;height:19.0%" onclick="launchShortcut('CAR HAZARD','Hazard control')"></button>
-  <button class="hot" style="left:80.5%;top:33.0%;width:10.0%;height:19.0%" onclick="launchShortcut('OPEN ADRENOX','Opening Adrenox…')"></button>
-  <button class="hot" style="left:90.6%;top:33.0%;width:8.1%;height:19.0%" onclick="launchShortcut('CAR CENTRAL LOCK','Central lock')"></button>
-  <button class="hot" style="left:70.0%;top:52.3%;width:10.4%;height:17.0%" onclick="launchShortcut('CAR HORN BLINK','Horn & Blink')"></button>
-  <button class="hot" style="left:80.5%;top:52.3%;width:10.0%;height:17.0%" onclick="launchShortcut('CAR SKYROOF','Skyroof')"></button>
-  <button class="hot" style="left:90.6%;top:52.3%;width:8.1%;height:17.0%" onclick="launchShortcut('CAR HEAD LAMP','Head lamp')"></button>
-  <button class="hot" style="left:69.1%;top:61.2%;width:29.6%;height:18.3%" onclick="openSpeed()"></button>
-
-  <button class="hot" style="left:1.2%;top:81.0%;width:13.2%;height:11.3%" onclick="openURL('maps://','Opening Apple Maps…')"></button>
-  <button class="hot" style="left:15.0%;top:81.0%;width:13.2%;height:11.3%" onclick="openURL('music://','Opening Apple Music…')"></button>
-  <button class="hot" style="left:29.1%;top:81.0%;width:13.2%;height:11.3%" onclick="startDrive()"></button>
-  <button class="hot" style="left:43.0%;top:81.0%;width:13.2%;height:11.3%" onclick="launchShortcut('OPEN ADRENOX','Opening Adrenox…')"></button>
-  <button class="hot" style="left:57.4%;top:81.0%;width:13.2%;height:11.3%" onclick="launchShortcut('OPEN DASHCAM','Opening Dashcam…')"></button>
-  <button class="hot" style="left:71.4%;top:81.0%;width:13.2%;height:11.3%" onclick="openSpeed()"></button>
-  <button class="hot" style="left:85.5%;top:81.0%;width:13.2%;height:11.3%" onclick="launchShortcut('OPEN CAR SCANNER','Opening Car Scanner…')"></button>
-</div>
-
-<div id="toast"></div>
-<div id="speedModal" onclick="closeSpeed()"><div id="speedCard" onclick="event.stopPropagation()"><div id="bigSpeed">0</div><div style="letter-spacing:.35em;color:#88ffbd">KM/H · LIVE GPS</div><button id="closeSpeed" onclick="closeSpeed()">CLOSE</button></div></div>
-
-<script>
-let watchId=null,lastPos=null,tripStart=Date.now(),tripDistance=0,lastTripTs=Date.now();
-const $=id=>document.getElementById(id);
-fetch('assets/cockpit-preview-data.txt').then(r=>r.text()).then(b64=>{
-  const u='data:image/jpeg;base64,'+b64.trim(); $('art').src=u; $('blur').style.backgroundImage=`url("${u}")`;
-});
-function tick(){
-  const d=new Date(); $('time').textContent=d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-  $('date').textContent=d.toLocaleDateString([], {weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  const sec=Math.max(0,(Date.now()-tripStart)/1000),m=Math.floor(sec/60),s=Math.floor(sec%60).toString().padStart(2,'0');
-  $('tripTime').textContent=m+':'+s;
-  $('avgSpeed').textContent=sec>5?Math.round((tripDistance/sec)*3.6):0;
-}
-setInterval(tick,1000);tick();
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1300)}
-function openURL(u,m){toast(m);setTimeout(()=>location.href=u,100)}
-function launchShortcut(n,m){toast(m);setTimeout(()=>location.href='shortcuts://run-shortcut?name='+encodeURIComponent(n),100)}
-function hav(a,b){const R=6371000,r=x=>x*Math.PI/180,d1=r(b.latitude-a.latitude),d2=r(b.longitude-a.longitude),s1=r(a.latitude),s2=r(b.latitude);return 2*R*Math.asin(Math.sqrt(Math.sin(d1/2)**2+Math.cos(s1)*Math.cos(s2)*Math.sin(d2/2)**2))}
-function gps(p){
-  const c=p.coords,now=p.timestamp||Date.now();let kmh=(c.speed!=null&&c.speed>=0)?c.speed*3.6:null;
-  if((kmh==null||!isFinite(kmh))&&lastPos){const dt=(now-lastPos.t)/1000;if(dt>.3&&dt<10)kmh=hav(lastPos,c)/dt*3.6}
-  if(!isFinite(kmh)||kmh<1.2)kmh=0; const k=Math.round(kmh);$('speednum').textContent=k;$('bigSpeed').textContent=k;
-  $('gpsstate').textContent=(c.accuracy&&c.accuracy<20)?'● GPS LOCKED':'● GPS SIGNAL';
-  if(lastPos){const d=hav(lastPos,c);if(d<250)tripDistance+=d;$('tripKm').textContent=(tripDistance/1000).toFixed(1)}
-  lastPos={latitude:c.latitude,longitude:c.longitude,t:now};
-  if(!window.wx){window.wx=1;weather(c.latitude,c.longitude)}
-}
-function startDrive(){if(watchId==null&&navigator.geolocation)watchId=navigator.geolocation.watchPosition(gps,()=>toast('Allow Location for live GPS speed'),{enableHighAccuracy:true,maximumAge:200,timeout:12000});toast('XUVISH DRIVE active')}
-async function weather(lat,lon){try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto`),j=await r.json();$('wxtemp').textContent=Math.round(j.current.temperature_2m)+'°'}catch(e){}}
-function openSpeed(){$('speedModal').classList.add('show');startDrive()} function closeSpeed(){$('speedModal').classList.remove('show')}
-if(navigator.getBattery){navigator.getBattery().then(b=>{const upd=()=>{$('battery').textContent=Math.round(b.level*100)+'%'};upd();b.addEventListener('levelchange',upd)})}
-window.addEventListener('load',()=>{startDrive();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
-</script>
-</body>
-</html>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;color:#eafff4}#cockpit{position:relative;width:100vw;height:100dvh;background:#020806 url('assets/xuvish-cockpit.jpg?v=6') center/cover no-repeat;overflow:hidden}.hot{position:absolute;background:transparent;border:0;cursor:pointer}.hot:active{background:rgba(57,255,136,.12);box-shadow:inset 0 0 24px rgba(57,255,136,.28);border-radius:16px}.livebox{position:absolute;background:rgba(1,10,7,.92);border:1px solid rgba(57,255,136,.28);border-radius:11px;color:#ecfff5;text-shadow:0 0 10px rgba(57,255,136,.25)}#timebox{left:1.5%;top:1.5%;width:14.3%;height:8.7%;padding:.75% 1.05%}.time{font-size:clamp(22px,3.05vw,52px);font-weight:780;line-height:.95}.date{font-size:clamp(9px,1vw,16px);margin-top:5px;color:#caffdf}#wxbox{left:16.3%;top:1.5%;width:14.2%;height:8.7%;padding:.6% .9%;display:flex;align-items:center;gap:8px}.wxicon{font-size:clamp(20px,2.6vw,42px)}.temp{font-size:clamp(21px,2.85vw,48px);font-weight:760}.wxsub{font-size:clamp(8px,.8vw,12px);color:#bfffd8}#speedLive{position:absolute;left:69.6%;top:56.2%;width:27.7%;height:18.6%;display:flex;align-items:center;justify-content:center;pointer-events:none}.speednum{font-size:clamp(45px,6.6vw,110px);font-weight:880;line-height:.8}.speedunit{font-size:clamp(8px,.8vw,12px);letter-spacing:.23em;color:#b2ffd1;text-align:center;margin-top:5px}.gps{position:absolute;right:4%;top:17%;font-size:clamp(7px,.72vw,11px);color:#8affbd}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#39ff88;box-shadow:0 0 9px #39ff88;margin-right:5px}.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.91);z-index:50}.modal.show{display:flex}.modalcard{width:min(900px,94vw);padding:24px;border:1px solid rgba(57,255,136,.45);border-radius:22px;background:linear-gradient(180deg,#04150e,#010806)}.big{font-size:min(30vw,260px);font-weight:900;line-height:.82;text-align:center}.center{text-align:center}.btn{border:1px solid rgba(57,255,136,.45);background:#071d13;color:#eafff4;border-radius:14px;padding:12px 18px;margin:8px;font-weight:700}.toast{position:fixed;left:50%;bottom:9%;transform:translateX(-50%) translateY(20px);opacity:0;background:#061b12;border:1px solid rgba(57,255,136,.45);padding:10px 15px;border-radius:12px;transition:.18s;z-index:60}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style></head><body><div id="cockpit">
+<div id="timebox" class="livebox"><div class="time" id="clock">--:--</div><div class="date" id="date">---</div></div><div id="wxbox" class="livebox"><div class="wxicon">☁︎</div><div><div class="temp"><span id="temp">--</span>°</div><div class="wxsub">AGRA · <span id="wx">GPS</span></div></div></div><div id="speedLive"><div class="center"><div class="speednum" id="speed">0</div><div class="speedunit">KM/H · GPS SPEED</div></div><div class="gps"><span class="dot"></span><span id="gpsState">ACQUIRING GPS</span><br>Accuracy <span id="acc">--</span> m</div></div>
+<button class="hot" style="left:1.2%;top:12.7%;width:29.3%;height:47.8%" onclick="shortcut('OPEN ADRENOX','Opening Adrenox vehicle status…')"></button><button class="hot" style="left:31.0%;top:12.5%;width:37.9%;height:54.9%" onclick="shortcut('OPEN ADRENOX','Opening Adrenox…')"></button>
+<button class="hot" style="left:69.5%;top:14%;width:9%;height:13.4%" onclick="shortcut('CAR WINDOWS','Windows')"></button><button class="hot" style="left:79%;top:14%;width:8.7%;height:13.4%" onclick="shortcut('CAR CLIMATE','Climate')"></button><button class="hot" style="left:88.2%;top:14%;width:8.7%;height:13.4%" onclick="shortcut('CAR STOP ENGINE','Engine')"></button><button class="hot" style="left:69.5%;top:28%;width:9%;height:13.3%" onclick="shortcut('CAR HAZARD','Hazard')"></button><button class="hot" style="left:79%;top:28%;width:8.7%;height:13.3%" onclick="shortcut('CAR CENTRAL LOCK','Central Lock')"></button><button class="hot" style="left:88.2%;top:28%;width:8.7%;height:13.3%" onclick="shortcut('CAR HEAD LAMP','Head Lamp')"></button><button class="hot" style="left:69.5%;top:42%;width:9%;height:13.1%" onclick="shortcut('CAR HORN BLINK','Horn & Blink')"></button><button class="hot" style="left:79%;top:42%;width:8.7%;height:13.1%" onclick="shortcut('CAR SKYROOF','Skyroof')"></button><button class="hot" style="left:88.2%;top:42%;width:8.7%;height:13.1%" onclick="shortcut('OPEN ADRENOX','More vehicle controls')"></button><button class="hot" style="left:68.8%;top:55.3%;width:28.5%;height:20.1%" onclick="openSpeed()"></button>
+<button class="hot" style="left:1.2%;top:78.8%;width:13.2%;height:11.9%" onclick="openURL('maps://','Opening Apple Maps…')"></button><button class="hot" style="left:14.8%;top:78.8%;width:13.2%;height:11.9%" onclick="openURL('music://','Opening Apple Music…')"></button><button class="hot" style="left:28.5%;top:78.8%;width:13.2%;height:11.9%" onclick="startGPS();toast('XUVISH DRIVE active')"></button><button class="hot" style="left:42.2%;top:78.8%;width:13.2%;height:11.9%" onclick="shortcut('OPEN ADRENOX','Opening Adrenox…')"></button><button class="hot" style="left:55.9%;top:78.8%;width:13.2%;height:11.9%" onclick="shortcut('OPEN DASHCAM','Opening Dashcam…')"></button><button class="hot" style="left:69.7%;top:78.8%;width:13.2%;height:11.9%" onclick="openSpeed()"></button><button class="hot" style="left:83.4%;top:78.8%;width:13.2%;height:11.9%" onclick="shortcut('OPEN NEXT DASHBOARD','Opening app bay…')"></button></div>
+<div class="modal" id="speedModal" onclick="this.classList.remove('show')"><div class="modalcard" onclick="event.stopPropagation()"><div class="center" style="letter-spacing:.25em;color:#8affbd;font-weight:800">XUVISH LIVE GPS SPEED</div><div class="big" id="bigSpeed">0</div><div class="center" style="letter-spacing:.35em;color:#9dffc9">KM/H</div><div class="center" style="margin-top:14px;color:#9dd3b2">Accuracy <span id="bigAcc">--</span> m · Heading <span id="heading">--</span>°</div><div class="center"><button class="btn" onclick="document.getElementById('speedModal').classList.remove('show')">CLOSE</button><button class="btn" onclick="shortcut('OPEN NEXT DASHBOARD','Opening Next Car Dashboard…')">NEXT DASHBOARD</button></div></div></div><div id="toast" class="toast"></div>
+<script>let watchId=null,last=null;function tick(){const d=new Date();clock.textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});date.textContent=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short',year:'numeric'})}setInterval(tick,1000);tick();function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200)}function openURL(u,m){toast(m);setTimeout(()=>location.href=u,100)}function shortcut(n,m){toast(m);setTimeout(()=>location.href='shortcuts://run-shortcut?name='+encodeURIComponent(n),100)}function hav(a,b){const R=6371000,r=x=>x*Math.PI/180,d1=r(b.latitude-a.latitude),d2=r(b.longitude-a.longitude),s1=r(a.latitude),s2=r(b.latitude),q=Math.sin(d1/2)**2+Math.cos(s1)*Math.cos(s2)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(q))}function gps(p){const c=p.coords,now=p.timestamp||Date.now();let k=(typeof c.speed==='number'&&c.speed>=0)?c.speed*3.6:null;if((k===null||!isFinite(k))&&last){const dt=(now-last.t)/1000;if(dt>.3&&dt<10)k=hav(last.c,c)/dt*3.6}if(k===null||!isFinite(k)||k<1.2)k=0;const v=Math.round(k);speed.textContent=v;bigSpeed.textContent=v;const a=Math.round(c.accuracy||0);acc.textContent=a;bigAcc.textContent=a;heading.textContent=(c.heading>=0?Math.round(c.heading):'--');gpsState.textContent=a<=20?'GPS LOCKED':'GPS SIGNAL';last={c:{latitude:c.latitude,longitude:c.longitude},t:now};if(!window._wx){window._wx=true;fetchWeather(c.latitude,c.longitude)}}function startGPS(){if(!navigator.geolocation){toast('GPS unavailable');return}if(watchId!==null)return;watchId=navigator.geolocation.watchPosition(gps,()=>{gpsState.textContent='ALLOW LOCATION';toast('Allow Location for live speed')},{enableHighAccuracy:true,maximumAge:250,timeout:12000})}async function fetchWeather(lat,lon){try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto`);const j=await r.json();temp.textContent=Math.round(j.current.temperature_2m);wx.textContent='LIVE'}catch(e){}}function openSpeed(){document.getElementById('speedModal').classList.add('show');startGPS()}window.addEventListener('load',startGPS);</script></body></html>
