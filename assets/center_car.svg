@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+<defs>
+<linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f8fffb"/><stop offset=".6" stop-color="#cbd8d1"/><stop offset="1" stop-color="#7d8b84"/></linearGradient>
+<linearGradient id="glass" x1="0" x2="1"><stop stop-color="#07110d"/><stop offset=".5" stop-color="#14261d"/><stop offset="1" stop-color="#07110d"/></linearGradient>
+<linearGradient id="plate" x1="0" x2="1"><stop stop-color="#06301f"/><stop offset=".5" stop-color="#39ff88"/><stop offset="1" stop-color="#06301f"/></linearGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="900" height="520" fill="#020806"/>
+<g fill="none" stroke="#39ff88" opacity=".18"><ellipse cx="450" cy="420" rx="330" ry="66"/><ellipse cx="450" cy="420" rx="250" ry="48"/><path d="M450 72v335M110 420h680"/></g>
+<g filter="url(#glow)">
+<path d="M210 330L248 198Q270 132 340 118L560 118Q630 132 652 198L690 330L650 390H250Z" fill="url(#body)" stroke="#d8fff0" stroke-width="3"/>
+<path d="M310 145H590L630 242H270Z" fill="url(#glass)" stroke="#39ff88" stroke-opacity=".45"/>
+<path d="M280 265H620L600 345H300Z" fill="#18251f" stroke="#c8d8d0" stroke-width="2"/>
+<path d="M320 278H580M335 300H565M350 322H550" stroke="#9eb0a7" stroke-width="8" stroke-linecap="round"/>
+<path d="M235 232Q285 210 340 228" stroke="#39ff88" stroke-width="10" stroke-linecap="round"/>
+<path d="M665 232Q615 210 560 228" stroke="#39ff88" stroke-width="10" stroke-linecap="round"/>
+<rect x="360" y="342" width="180" height="48" rx="9" fill="#07150e" stroke="url(#plate)" stroke-width="3"/>
+<text x="450" y="376" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="8" fill="#dffff0">XUVISH</text>
+<circle cx="292" cy="390" r="33" fill="#050807" stroke="#2b3c33" stroke-width="10"/>
+<circle cx="608" cy="390" r="33" fill="#050807" stroke="#2b3c33" stroke-width="10"/>
+</g>
+<text x="450" y="468" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="7" fill="#65ffac">READY · CONNECTED · IN CONTROL</text>
+</svg>
