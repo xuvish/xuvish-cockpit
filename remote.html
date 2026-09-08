@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#010705">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="XUVISH GPS">
+<title>XUVISH Cockpit · iPhone GPS</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;color:#effff7}body{display:flex;align-items:center;justify-content:center}#stage{position:relative;width:min(100vw,177.6833156vh);height:min(100vh,56.2799043vw);aspect-ratio:1672/941;overflow:hidden;background:#010705}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.remoteSpeed{position:absolute;left:76.35%;top:65.7%;width:14.4%;height:10.4%;z-index:20;background:rgba(0,10,7,.985);border-radius:44% 44% 0 0;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none}.speed{font-size:clamp(34px,4.35vw,72px);font-weight:900;line-height:.78}.unit{font-size:clamp(7px,.65vw,10px);letter-spacing:.08em}.gps{position:absolute;right:2.0%;top:61.9%;z-index:21;font-size:clamp(7px,.65vw,10px);color:#43ff9f;letter-spacing:.06em;background:rgba(0,12,8,.94);padding:5px 8px;border-radius:8px;pointer-events:none}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#34ff91;box-shadow:0 0 10px #34ff91;margin-right:5px}.small{display:block;color:#8de6b8;font-size:.82em;margin-top:2px;text-align:right}
+</style>
+</head>
+<body>
+<div id="stage">
+  <iframe src="./index.html?v=iphonegps" allow="geolocation"></iframe>
+  <div class="remoteSpeed"><div class="speed" id="speed">0</div><div class="unit">km/h · iPHONE GPS</div></div>
+  <div class="gps"><span class="dot"></span><span id="gpsState">WAITING FOR iPHONE</span><span class="small" id="gpsMeta">Open GPS Link on iPhone</span></div>
+</div>
+<script>
+const TOPIC='xuvish/cockpit/gps/3c8db4e1070b48bf9d5b';
+let lastMessage=0;
+const client=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:'xuvish_ipad_'+Math.random().toString(16).slice(2),clean:true,keepalive:20,reconnectPeriod:2000});
+client.on('connect',()=>{client.subscribe(TOPIC,{qos:0});gpsState.textContent='LINKED · WAITING GPS'});
+client.on('message',(topic,payload)=>{try{const d=JSON.parse(payload.toString());if(d.offline){gpsState.textContent='iPHONE LINK STOPPED';return}if(typeof d.speed==='number'){lastMessage=Date.now();speed.textContent=Math.round(d.speed);gpsState.textContent='iPHONE GPS LIVE';gpsMeta.textContent='Accuracy '+(d.accuracy??'--')+' m · Heading '+(d.heading??'--')+'°'}}catch(e){}});
+client.on('offline',()=>{gpsState.textContent='GPS LINK OFFLINE'});
+client.on('reconnect',()=>{gpsState.textContent='RECONNECTING…'});
+setInterval(()=>{if(lastMessage&&Date.now()-lastMessage>5000){gpsState.textContent='WAITING FOR iPHONE';gpsMeta.textContent='Keep sender page open'}},1500);
+</script>
+</body>
+</html>
