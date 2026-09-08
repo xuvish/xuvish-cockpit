@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#010705">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>XUVISH iPhone GPS Sender</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#010705;color:#effff7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}body{display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 30%,#073522 0,#010705 52%,#000 100%)}.card{width:min(520px,100%);border:1px solid rgba(39,255,177,.5);background:rgba(0,18,12,.94);border-radius:24px;padding:24px;box-shadow:0 0 45px rgba(0,255,160,.10)}h1{margin:0;text-align:center;letter-spacing:.15em;font-size:28px}.sub{text-align:center;color:#72ffc0;letter-spacing:.18em;font-size:11px;margin:7px 0 24px}.speed{text-align:center;font-size:112px;font-weight:900;line-height:.82}.unit{text-align:center;letter-spacing:.3em;color:#9effce;margin-bottom:22px}.row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(39,255,177,.14);font-size:14px}.ok{color:#4dffa1}.warn{color:#ffd369}.btn{width:100%;margin-top:18px;padding:16px;border:1px solid rgba(39,255,177,.55);border-radius:15px;background:#072b1c;color:#effff7;font-size:17px;font-weight:700}.btn:active{transform:scale(.98);background:#0b3a27}.note{margin-top:17px;color:#9bd8bb;font-size:12px;line-height:1.55}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#4dffa1;box-shadow:0 0 10px #4dffa1;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>XUVISH GPS LINK</h1>
+  <div class="sub">IPHONE → IPAD COCKPIT</div>
+  <div class="speed" id="speed">0</div>
+  <div class="unit">KM/H</div>
+  <div class="row"><span>iPhone GPS</span><b id="gpsState" class="warn">WAITING</b></div>
+  <div class="row"><span>iPad Link</span><b id="netState" class="warn">CONNECTING</b></div>
+  <div class="row"><span>Accuracy</span><b><span id="acc">--</span> m</b></div>
+  <div class="row"><span>Heading</span><b><span id="heading">--</span>°</b></div>
+  <button class="btn" id="startBtn" onclick="startSharing()">START GPS SHARING</button>
+  <button class="btn" id="stopBtn" onclick="stopSharing()" style="display:none">STOP SHARING</button>
+  <div class="note">Keep this page open on the iPhone while driving. It sends only speed, heading and GPS accuracy to the XUVISH iPad cockpit — not your latitude/longitude. Keep the iPhone charging for long drives.</div>
+</div>
+<script>
+const TOPIC='xuvish/cockpit/gps/3c8db4e1070b48bf9d5b';
+let client=null,watchId=null,last=null,wakeLock=null;
+function connect(){
+  if(client) return;
+  client=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{clientId:'xuvish_phone_'+Math.random().toString(16).slice(2),clean:true,keepalive:20,reconnectPeriod:2000});
+  client.on('connect',()=>{netState.textContent='CONNECTED';netState.className='ok'});
+  client.on('reconnect',()=>{netState.textContent='RECONNECTING';netState.className='warn'});
+  client.on('offline',()=>{netState.textContent='OFFLINE';netState.className='warn'});
+  client.on('error',()=>{netState.textContent='ERROR';netState.className='warn'});
+}
+function hav(a,b){const R=6371000,r=x=>x*Math.PI/180,d1=r(b.latitude-a.latitude),d2=r(b.longitude-a.longitude),s1=r(a.latitude),s2=r(b.latitude),q=Math.sin(d1/2)**2+Math.cos(s1)*Math.cos(s2)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
+function onGPS(p){
+  const c=p.coords,now=p.timestamp||Date.now();
+  let kmh=(typeof c.speed==='number'&&c.speed>=0)?c.speed*3.6:null;
+  if((kmh===null||!isFinite(kmh))&&last){const dt=(now-last.t)/1000;if(dt>.3&&dt<10)kmh=hav(last.c,c)/dt*3.6}
+  if(kmh===null||!isFinite(kmh)||kmh<1.2)kmh=0;
+  const hd=(typeof c.heading==='number'&&c.heading>=0)?Math.round(c.heading):null;
+  const ac=Math.round(c.accuracy||0);
+  speed.textContent=Math.round(kmh);acc.textContent=ac;heading.textContent=hd===null?'--':hd;
+  gpsState.textContent='GPS LOCKED';gpsState.className='ok';
+  last={c:{latitude:c.latitude,longitude:c.longitude},t:now};
+  if(client&&client.connected){client.publish(TOPIC,JSON.stringify({speed:kmh,heading:hd,accuracy:ac,ts:Date.now()}),{qos:0,retain:false})}
+}
+function onErr(){gpsState.textContent='ALLOW LOCATION';gpsState.className='warn'}
+async function startSharing(){
+  connect();
+  if(!navigator.geolocation){gpsState.textContent='GPS UNAVAILABLE';return}
+  if(watchId===null)watchId=navigator.geolocation.watchPosition(onGPS,onErr,{enableHighAccuracy:true,maximumAge:0,timeout:12000});
+  try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen')}catch(e){}
+  startBtn.style.display='none';stopBtn.style.display='block';
+}
+function stopSharing(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null}
+  if(client&&client.connected)client.publish(TOPIC,JSON.stringify({offline:true,ts:Date.now()}),{qos:0,retain:false});
+  gpsState.textContent='STOPPED';gpsState.className='warn';startBtn.style.display='block';stopBtn.style.display='none';
+  if(wakeLock){try{wakeLock.release()}catch(e){} wakeLock=null}
+}
+document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='visible'&&watchId!==null&&'wakeLock' in navigator){try{wakeLock=await navigator.wakeLock.request('screen')}catch(e){}}});
+connect();
+</script>
+</body>
+</html>
